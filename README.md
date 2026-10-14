@@ -1,5 +1,6 @@
 # Demo: Truy xuất nguồn gốc bằng mã QR
 
+Bản online: https://nguyenthong251.github.io/demo-truy-xuat-nguon-goc/ (repo riêng NguyenThong251/demo-truy-xuat-nguon-goc)
 Chạy thử trên máy: `python3 -m http.server 8790` trong thư mục này → http://localhost:8790/
 (Thương hiệu "Nông trại Lá Xanh" và mọi số liệu đều là MẪU, trang có ghi rõ "BẢN DEMO".)
 
