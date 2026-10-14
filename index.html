@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Truy xuất nguồn gốc – Demo</title>
+<meta name="description" content="Demo hệ thống truy xuất nguồn gốc bằng mã QR cho nông sản, thực phẩm – Nguyễn Hoàng Thông">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#f4f7f2;--card:#fff;--ink:#1d2a1f;--muted:#5d6b60;--line:#dfe7dc;--green:#2f7d3b;--green-2:#e6f2e7;--warn:#a15c00;--warn-2:#fff3df;--bad:#b3261e;--bad-2:#fde8e6;--radius:14px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--green)}
+.demo-bar{background:#1d2a1f;color:#fff;font-size:13px;padding:8px 16px;display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.demo-bar a{color:#bfe5c4}
+main{max-width:760px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin:0 0 14px}
+h1{font-size:24px;line-height:1.25;margin:4px 0 8px}
+h2{font-size:17px;margin:0 0 10px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.btn{display:inline-block;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;background:var(--green);color:#fff}
+.btn.ghost{background:var(--green-2);color:var(--green)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.status{border-radius:var(--radius);padding:16px 18px;margin:0 0 14px;display:flex;gap:12px;align-items:flex-start}
+.status .ic{font-size:28px;line-height:1}
+.status b{display:block;font-size:17px}
+.ok{background:var(--green-2);border:1px solid #b9dcbd}
+.warn{background:var(--warn-2);border:1px solid #f1cf95}
+.bad{background:var(--bad-2);border:1px solid #f3b6af}
+.prod{display:flex;gap:14px;align-items:center}
+.prod .pic{width:64px;height:64px;border-radius:14px;background:var(--green-2);display:grid;place-items:center;font-size:34px;flex:none}
+dl{display:grid;grid-template-columns:minmax(110px,38%) 1fr;gap:6px 12px;margin:0}
+dt{color:var(--muted)}
+dd{margin:0;overflow-wrap:anywhere}
+.tl{list-style:none;margin:0;padding:0 0 0 18px;border-left:2px solid var(--line)}
+.tl li{position:relative;padding:0 0 14px 10px}
+.tl li::before{content:"";position:absolute;left:-25px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid #fff;box-shadow:0 0 0 1px var(--green)}
+.tl .d{font-size:13px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--green-2);color:var(--green);border-radius:99px;padding:3px 10px;font-size:13px;font-weight:600}
+.hash{font:12px/1.4 ui-monospace,Consolas,monospace;background:#f1f4f0;border-radius:8px;padding:8px;overflow-wrap:anywhere}
+.lang{display:flex;gap:4px}
+.lang button{border:1px solid #4d5e50;background:transparent;color:#fff;border-radius:6px;padding:2px 8px;font:inherit;font-size:12px;cursor:pointer}
+.lang button.on{background:#fff;color:#1d2a1f}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl{overflow-x:auto}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+input,textarea,select{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+textarea{min-height:110px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.labels{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.lbl{border:1px dashed #9fb3a2;border-radius:10px;padding:10px;text-align:center;background:#fff;break-inside:avoid}
+.lbl .q{display:flex;justify-content:center;margin:6px 0}
+.lbl .c{font:600 13px ui-monospace,Consolas,monospace;letter-spacing:1px}
+.lbl a{font-size:12px}
+.hero-ic{font-size:40px}
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.steps3 div{background:var(--green-2);border-radius:12px;padding:12px;font-size:14px}
+footer{max-width:760px;margin:0 auto;padding:4px 16px 28px;font-size:13px;color:var(--muted)}
+@media (max-width:560px){.grid2,.steps3{grid-template-columns:1fr}dl{grid-template-columns:1fr}dt{margin-top:6px}}
+@media print{.demo-bar,.noprint,footer{display:none!important}body{background:#fff}main{max-width:none;padding:0}.card{border:0;padding:0}.lbl{border:1px solid #999}}
+</style>
+</head>
+<body>
+<div class="demo-bar noprint">
+  <span id="demoNote"></span>
+  <div class="lang" id="langBox"><button data-l="vi">VI</button><button data-l="en">EN</button></div>
+</div>
+<main id="app"></main>
+<footer id="foot"></footer>
+<script>
+// ===== Dữ liệu mẫu (thương hiệu và số liệu đều là giả lập) =====
+const SEED = [
+  {
+    id: 'LX-SR-2609-01', icon: '🌳',
+    product: { vi: 'Sầu riêng Ri6', en: 'Ri6 Durian' },
+    spec: { vi: 'Trái 2–4 kg, cơm vàng, hạt lép', en: '2–4 kg per fruit, yellow flesh' },
+    farm: 'Nông trại Lá Xanh (mẫu)',
+    region: { vi: 'Krông Pắc, Đắk Lắk', en: 'Krong Pac, Dak Lak, Vietnam' },
+    puc: 'VN-DLK-0000 (mẫu)', area: '3,2 ha', gps: '12.70, 108.30',
+    harvest: '2026-09-26', pack: '2026-09-28', best: '2026-10-08',
+    certs: ['VietGAP (mẫu)', 'Mã vùng trồng (mẫu)', 'Kiểm dịch thực vật (mẫu)'],
+    test: { vi: 'Dư lượng thuốc bảo vệ thực vật: ĐẠT (phiếu kiểm nghiệm mẫu KN-0000)', en: 'Pesticide residue test: PASSED (sample report KN-0000)' },
+    steps: [
+      { d: '2026-03-12', t: { vi: 'Ra hoa – tỉa hoa, bón phân hữu cơ', en: 'Flowering – thinning, organic fertiliser' }, w: { vi: 'Vườn số 2', en: 'Orchard plot 2' } },
+      { d: '2026-07-20', t: { vi: 'Kiểm tra sâu bệnh định kỳ, ghi nhật ký vườn', en: 'Routine pest inspection, field log' }, w: { vi: 'Vườn số 2', en: 'Orchard plot 2' } },
+      { d: '2026-09-26', t: { vi: 'Thu hoạch đúng độ chín (khoảng 105 ngày sau đậu trái)', en: 'Harvested at maturity (~105 days after fruit set)' }, w: { vi: 'Vườn số 2', en: 'Orchard plot 2' } },
+      { d: '2026-09-27', t: { vi: 'Sơ chế, phân loại, lấy mẫu kiểm nghiệm', en: 'Sorting, grading, lab sampling' }, w: { vi: 'Nhà sơ chế HTX', en: 'Co-op packhouse' } },
+      { d: '2026-09-28', t: { vi: 'Đóng gói, dán tem QR, xuất kho', en: 'Packed, QR-labelled, dispatched' }, w: { vi: 'Kho Buôn Ma Thuột', en: 'Buon Ma Thuot warehouse' } }
+    ],
+    codes: ['K7QX2M9A', 'P3HV8TZC', 'R9WD4NEB', 'T2YF6KQH', 'M8BN3XRJ', 'H4CZ7PWL']
+  },
+  {
+    id: 'LX-CF-2610-02', icon: '☕',
+    product: { vi: 'Cà phê Robusta rang mộc 500 g', en: 'Robusta Coffee, pure roast, 500 g' },
+    spec: { vi: 'Hạt chín đỏ trên 95%, rang vừa', en: '95%+ ripe cherries, medium roast' },
+    farm: 'Nông trại Lá Xanh (mẫu)',
+    region: { vi: 'Cư M\'gar, Đắk Lắk', en: 'Cu M\'gar, Dak Lak, Vietnam' },
+    puc: 'VN-DLK-0001 (mẫu)', area: '5,0 ha', gps: '12.85, 108.10',
+    harvest: '2026-01-15', pack: '2026-10-02', best: '2027-04-02',
+    certs: ['VietGAP (mẫu)', 'OCOP 4 sao (mẫu)'],
+    test: { vi: 'Độ ẩm 12,1%, không phụ gia, không tẩm hương (phiếu mẫu KN-0001)', en: 'Moisture 12.1%, no additives or flavouring (sample report KN-0001)' },
+    steps: [
+      { d: '2026-01-15', t: { vi: 'Thu hái chọn lọc trái chín đỏ', en: 'Selective picking of ripe red cherries' }, w: { vi: 'Đồi số 1', en: 'Hill plot 1' } },
+      { d: '2026-01-16', t: { vi: 'Phơi trên giàn cao 21 ngày', en: 'Dried on raised beds for 21 days' }, w: { vi: 'Sân phơi HTX', en: 'Co-op drying yard' } },
+      { d: '2026-09-30', t: { vi: 'Rang mộc mẻ 15 kg, ghi nhiệt độ từng mẻ', en: 'Roasted in 15 kg batches, temperature logged' }, w: { vi: 'Xưởng rang', en: 'Roastery' } },
+      { d: '2026-10-02', t: { vi: 'Đóng gói van một chiều, dán tem QR', en: 'Packed in one-way valve bags, QR-labelled' }, w: { vi: 'Xưởng rang', en: 'Roastery' } }
+    ],
+    codes: ['C6RT9YKA', 'D2MW5HQE', 'F8NP3VXT', 'G5KZ2BRM', 'J9XC4TWD', 'L3QH8MZP']
+  }
+];
+
+const T = {
+  vi: {
+    demo: 'BẢN DEMO – thương hiệu và dữ liệu đều là mẫu, không phải sản phẩm thật.',
+    heroT: 'Truy xuất nguồn gốc bằng mã QR', heroP: 'Mỗi sản phẩm có một mã QR riêng. Khách quét bằng camera điện thoại là thấy vùng trồng, ngày thu hoạch, giấy kiểm nghiệm và biết hàng chính hãng hay không. Không cần cài app.',
+    how1: '<b>1. Nhà sản xuất</b><br>Tạo lô hàng, nhập nhật ký, in tem QR', how2: '<b>2. Dán tem</b><br>Mỗi trái / gói một mã riêng, không trùng', how3: '<b>3. Khách quét</b><br>Xem hành trình sản phẩm và kiểm tra hàng thật',
+    tryScan: 'Thử như khách quét', tryAdmin: 'Trang quản lý (nhà sản xuất)', sampleCodes: 'Mã mẫu để thử',
+    genuine: 'Sản phẩm chính hãng', firstScan: 'Đây là lần quét đầu tiên của mã này.',
+    rescanT: 'Mã này đã được quét {n} lần', rescanP: 'Lần đầu lúc {t}. Nếu bạn vừa mua mà thấy thông báo này, sản phẩm có thể đã bị sao chép tem. Hãy liên hệ nhà sản xuất.',
+    notFoundT: 'Không tìm thấy mã {c}', notFoundP: 'Mã không có trong hệ thống. Sản phẩm có thể là hàng giả, hãy báo nhà sản xuất.',
+    batch: 'Lô hàng', spec: 'Quy cách', farm: 'Nhà sản xuất', region: 'Vùng trồng', puc: 'Mã vùng trồng', area: 'Diện tích', gps: 'Tọa độ', harvest: 'Ngày thu hoạch', pack: 'Ngày đóng gói', best: 'Dùng tốt nhất trước',
+    journey: 'Hành trình sản phẩm', certs: 'Chứng nhận & kiểm nghiệm', map: 'Xem trên bản đồ',
+    integ: 'Toàn vẹn dữ liệu', integOk: '✔ Dữ liệu khớp với bản ghi gốc lúc đóng gói, chưa bị chỉnh sửa.', integBad: '✖ Dữ liệu KHÔNG khớp bản ghi gốc – thông tin đã bị sửa sau khi đóng gói.',
+    integHelp: 'Mỗi lô được "niêm phong" bằng dấu vân tay SHA-256. Chỉ cần sửa một chữ là dấu vân tay đổi hoàn toàn. Bản thật có thể ghi dấu này lên blockchain công khai để không ai, kể cả nhà sản xuất, sửa lén được.',
+    origHash: 'Dấu vân tay gốc', curHash: 'Dấu vân tay hiện tại', tamper: 'Thử sửa ngày thu hoạch', untamper: 'Hoàn tác', rescan: 'Giả lập khách khác quét lại',
+    contact: 'Liên hệ nhà sản xuất: 0900 000 000 (số mẫu)',
+    adminT: 'Quản lý lô hàng', adminP: 'Bản demo lưu dữ liệu trên trình duyệt này. Bản thật lưu trên máy chủ, đếm lượt quét từ mọi điện thoại.',
+    colBatch: 'Lô', colProd: 'Sản phẩm', colCodes: 'Số tem', colScan: 'Đã quét', colSus: 'Nghi sao chép', open: 'Xem / in tem',
+    newT: 'Tạo lô hàng mới', fProd: 'Tên sản phẩm', fSpec: 'Quy cách', fRegion: 'Vùng trồng', fPuc: 'Mã vùng trồng', fHarvest: 'Ngày thu hoạch', fPack: 'Ngày đóng gói', fBest: 'Dùng tốt nhất trước', fCount: 'Số tem cần in (tối đa 60)', fCerts: 'Chứng nhận (cách nhau bằng dấu phẩy)', fSteps: 'Nhật ký (mỗi dòng: ngày | việc | nơi)', create: 'Tạo lô & sinh mã QR',
+    labelsT: 'Tem QR của lô {b}', print: 'In tem', back: '← Danh sách lô', home: '← Trang giới thiệu', scanStat: 'Thống kê quét', never: 'chưa quét', times: '{n} lần', sus: 'nghi sao chép',
+    foot: 'Demo do Nguyễn Hoàng Thông xây dựng · Làm hệ thống tương tự cho nông trại, HTX, xưởng thực phẩm: Zalo 0383 326 547 · <a href="https://hoangthong.io.vn">hoangthong.io.vn</a>',
+    created: 'Đã tạo lô {b} với {n} mã.', need: 'Cần nhập tên sản phẩm.'
+  },
+  en: {
+    demo: 'DEMO – brand and data are samples, not a real product.',
+    heroT: 'Product traceability with QR codes', heroP: 'Every item gets its own QR code. Customers scan it with their phone camera to see the growing area, harvest date and lab results, and to check that the product is genuine. No app needed.',
+    how1: '<b>1. Producer</b><br>Creates a batch, logs each step, prints QR labels', how2: '<b>2. Label</b><br>One unique code per fruit or pack', how3: '<b>3. Customer scans</b><br>Sees the product journey and verifies it is genuine',
+    tryScan: 'Try it as a customer', tryAdmin: 'Producer dashboard', sampleCodes: 'Sample codes to try',
+    genuine: 'Genuine product', firstScan: 'This is the first scan of this code.',
+    rescanT: 'This code has been scanned {n} times', rescanP: 'First scanned on {t}. If you just bought this item and see this message, the label may have been copied. Please contact the producer.',
+    notFoundT: 'Code {c} not found', notFoundP: 'This code is not in the system. The product may be counterfeit, please report it to the producer.',
+    batch: 'Batch', spec: 'Specification', farm: 'Producer', region: 'Growing area', puc: 'Growing area code', area: 'Area', gps: 'Coordinates', harvest: 'Harvest date', pack: 'Packing date', best: 'Best before',
+    journey: 'Product journey', certs: 'Certificates & lab tests', map: 'View on map',
+    integ: 'Data integrity', integOk: '✔ Data matches the original record sealed at packing. Not modified.', integBad: '✖ Data does NOT match the original record – it was edited after packing.',
+    integHelp: 'Each batch is sealed with a SHA-256 fingerprint. Changing a single character changes the fingerprint completely. The production version can publish this fingerprint on a public blockchain so nobody, not even the producer, can quietly edit it.',
+    origHash: 'Original fingerprint', curHash: 'Current fingerprint', tamper: 'Try editing the harvest date', untamper: 'Undo', rescan: 'Simulate another customer scanning',
+    contact: 'Producer contact: 0900 000 000 (sample number)',
+    adminT: 'Batch management', adminP: 'This demo stores data in this browser. The production version stores it on a server and counts scans from every phone.',
+    colBatch: 'Batch', colProd: 'Product', colCodes: 'Labels', colScan: 'Scanned', colSus: 'Suspected copies', open: 'View / print labels',
+    newT: 'Create a new batch', fProd: 'Product name', fSpec: 'Specification', fRegion: 'Growing area', fPuc: 'Growing area code', fHarvest: 'Harvest date', fPack: 'Packing date', fBest: 'Best before', fCount: 'Number of labels (max 60)', fCerts: 'Certificates (comma separated)', fSteps: 'Log (one per line: date | step | place)', create: 'Create batch & QR codes',
+    labelsT: 'QR labels for batch {b}', print: 'Print labels', back: '← All batches', home: '← Overview', scanStat: 'Scan statistics', never: 'not scanned', times: '{n} times', sus: 'suspected copy',
+    foot: 'Demo built by Nguyen Hoang Thong · Need this for your farm, co-op or food brand? Zalo +84 383 326 547 · <a href="https://hoangthong.io.vn">hoangthong.io.vn</a>',
+    created: 'Created batch {b} with {n} codes.', need: 'Product name is required.'
+  }
+};
+
+// ===== Lưu trữ an toàn (localStorage có thể bị chặn) =====
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+let lang = store.get('tx_lang', 'vi');
+const memScans = {};
+function scans() { return store.get('tx_scans', memScans); }
+function saveScans(s) { Object.assign(memScans, s); store.set('tx_scans', s); }
+function batches() { return SEED.concat(store.get('tx_batches', [])); }
+
+const t = (k, v) => { let s = (T[lang][k] ?? T.vi[k] ?? k); for (const x in (v || {})) s = s.replace('{' + x + '}', v[x]); return s; };
+const L = x => (x && typeof x === 'object') ? (x[lang] || x.vi) : (x || '');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtD = d => { if (!d) return ''; const [y, m, dd] = d.split('-'); return lang === 'vi' ? `${dd}/${m}/${y}` : `${y}-${m}-${dd}`; };
+const fmtT = ms => new Date(ms).toLocaleString(lang === 'vi' ? 'vi-VN' : 'en-GB');
+const base = () => location.href.split('#')[0];
+const app = document.getElementById('app');
+
+// Dấu vân tay SHA-256 của dữ liệu lô (không tính danh sách mã)
+function canon(o) {
+  if (Array.isArray(o)) return '[' + o.map(canon).join(',') + ']';
+  if (o && typeof o === 'object') return '{' + Object.keys(o).sort().map(k => JSON.stringify(k) + ':' + canon(o[k])).join(',') + '}';
+  return JSON.stringify(o);
+}
+async function sha256(b) {
+  const { codes, anchor, ...data } = b;
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(canon(data)));
+  return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
+function qr(el, text, size) {
+  if (window.QRCode) new QRCode(el, { text, width: size, height: size, correctLevel: QRCode.CorrectLevel.M });
+  else el.innerHTML = `<a href="${esc(text)}">${esc(text)}</a>`;
+}
+
+// ===== Trang giới thiệu =====
+function viewHome() {
+  const b = SEED[0];
+  app.innerHTML = `
+  <div class="card">
+    <div class="hero-ic">🔎🌱</div>
+    <h1>${t('heroT')}</h1>
+    <p class="muted">${t('heroP')}</p>
+    <div class="steps3"><div>${t('how1')}</div><div>${t('how2')}</div><div>${t('how3')}</div></div>
+    <p class="row" style="margin-top:14px"><a class="btn" href="#/sp/${b.codes[0]}">${t('tryScan')}</a><a class="btn ghost" href="#/quan-ly">${t('tryAdmin')}</a></p>
+  </div>
+  <div class="card">
+    <h2>${t('sampleCodes')}</h2>
+    <div class="labels">${SEED.map(x => `<div class="lbl"><div>${x.icon} ${esc(L(x.product))}</div><div class="q" data-qr="${x.codes[1]}"></div><div class="c">${x.codes[1]}</div><a href="#/sp/${x.codes[1]}">${t('tryScan')}</a></div>`).join('')}</div>
+  </div>`;
+  app.querySelectorAll('[data-qr]').forEach(el => qr(el, base() + '#/sp/' + el.dataset.qr, 120));
+}
+
+// ===== Trang khách quét =====
+let tampered = false;
+async function viewScan(code, record) {
+  code = code.toUpperCase();
+  const b = batches().find(x => x.codes.includes(code));
+  if (!b) {
+    app.innerHTML = `<div class="status bad"><div class="ic">❌</div><div><b>${t('notFoundT', { c: esc(code) })}</b>${t('notFoundP')}</div></div><p><a href="#/">${t('home')}</a></p>`;
+    return;
+  }
+  const s = scans();
+  if (record) { (s[code] = s[code] || []).push(Date.now()); saveScans(s); }
+  const list = s[code] || [];
+  const n = list.length;
+  const status = n <= 1
+    ? `<div class="status ok"><div class="ic">✅</div><div><b>${t('genuine')}</b>${t('firstScan')}</div></div>`
+    : `<div class="status warn"><div class="ic">⚠️</div><div><b>${t('rescanT', { n })}</b>${t('rescanP', { t: fmtT(list[0]) })}</div></div>`;
+
+  const shown = tampered ? { ...b, harvest: '2026-10-05' } : b;
+  const orig = b.anchor || await sha256(b);
+  const cur = await sha256(shown);
+  const same = orig === cur;
+
+  app.innerHTML = `
+  ${status}
+  <div class="card prod"><div class="pic">${b.icon || '📦'}</div><div><h1 style="margin:0">${esc(L(b.product))}</h1><div class="muted small">${t('batch')} ${esc(b.id)} · ${esc(code)}</div></div></div>
+  <div class="card"><dl>
+    <dt>${t('spec')}</dt><dd>${esc(L(b.spec))}</dd>
+    <dt>${t('farm')}</dt><dd>${esc(b.farm)}</dd>
+    <dt>${t('region')}</dt><dd>${esc(L(b.region))}</dd>
+    <dt>${t('puc')}</dt><dd>${esc(b.puc)}</dd>
+    ${b.area ? `<dt>${t('area')}</dt><dd>${esc(b.area)}</dd>` : ''}
+    ${b.gps ? `<dt>${t('gps')}</dt><dd>${esc(b.gps)} · <a href="https://www.google.com/maps?q=${encodeURIComponent(b.gps.replace(/\s/g, ''))}" target="_blank" rel="noopener">${t('map')}</a></dd>` : ''}
+    <dt>${t('harvest')}</dt><dd ${same ? '' : 'style="color:var(--bad);font-weight:700"'}>${fmtD(shown.harvest)}</dd>
+    <dt>${t('pack')}</dt><dd>${fmtD(b.pack)}</dd>
+    ${b.best ? `<dt>${t('best')}</dt><dd>${fmtD(b.best)}</dd>` : ''}
+  </dl></div>
+  <div class="card"><h2>${t('journey')}</h2><ul class="tl">${(b.steps || []).map(st => `<li><div class="d">${fmtD(st.d)} · ${esc(L(st.w))}</div>${esc(L(st.t))}</li>`).join('')}</ul></div>
+  <div class="card"><h2>${t('certs')}</h2><div class="chips">${(b.certs || []).map(c => `<span class="chip">${esc(c)}</span>`).join('')}</div>${b.test ? `<p style="margin:10px 0 0">🧪 ${esc(L(b.test))}</p>` : ''}</div>
+  <div class="card"><h2>${t('integ')}</h2>
+    <div class="status ${same ? 'ok' : 'bad'}" style="margin-bottom:10px"><div>${same ? t('integOk') : t('integBad')}</div></div>
+    <div class="small muted">${t('origHash')}</div><div class="hash">${orig}</div>
+    <div class="small muted" style="margin-top:6px">${t('curHash')}</div><div class="hash">${cur}</div>
+    <p class="small muted">${t('integHelp')}</p>
+    <div class="row noprint"><button class="btn sm ghost" id="tamper">${tampered ? t('untamper') : t('tamper')}</button><button class="btn sm ghost" id="rescan">${t('rescan')}</button></div>
+  </div>
+  <p class="muted small">${t('contact')}</p>
+  <p class="noprint"><a href="#/">${t('home')}</a> · <a href="#/quan-ly">${t('tryAdmin')}</a></p>`;
+  document.getElementById('tamper').onclick = () => { tampered = !tampered; viewScan(code, false); };
+  document.getElementById('rescan').onclick = () => { viewScan(code, true); window.scrollTo(0, 0); };
+}
+
+// ===== Trang quản lý =====
+function rndCode() {
+  const A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', r = new Uint32Array(8);
+  crypto.getRandomValues(r);
+  return [...r].map(x => A[x % A.length]).join('');
+}
+function viewAdmin(msg) {
+  const s = scans();
+  const today = new Date().toISOString().slice(0, 10);
+  app.innerHTML = `
+  <div class="card"><h1>${t('adminT')}</h1><p class="muted small">${t('adminP')}</p>${msg ? `<div class="status ok"><div>${esc(msg)}</div></div>` : ''}
+  <div class="tbl"><table><thead><tr><th>${t('colBatch')}</th><th>${t('colProd')}</th><th>${t('colCodes')}</th><th>${t('colScan')}</th><th>${t('colSus')}</th><th></th></tr></thead><tbody>
+  ${batches().map(b => {
+    const sc = b.codes.filter(c => (s[c] || []).length).length;
+    const sus = b.codes.filter(c => (s[c] || []).length > 1).length;
+    return `<tr><td>${esc(b.id)}</td><td>${b.icon || '📦'} ${esc(L(b.product))}</td><td>${b.codes.length}</td><td>${sc}</td><td ${sus ? 'style="color:var(--warn);font-weight:700"' : ''}>${sus}</td><td><a href="#/lo/${encodeURIComponent(b.id)}">${t('open')}</a></td></tr>`;
+  }).join('')}
+  </tbody></table></div></div>
+  <form class="card" id="f"><h2>${t('newT')}</h2>
+    <label>${t('fProd')}</label><input name="product" maxlength="80" required>
+    <label>${t('fSpec')}</label><input name="spec" maxlength="120">
+    <div class="grid2"><div><label>${t('fRegion')}</label><input name="region" maxlength="80"></div><div><label>${t('fPuc')}</label><input name="puc" maxlength="40"></div></div>
+    <div class="grid2"><div><label>${t('fHarvest')}</label><input type="date" name="harvest" value="${today}"></div><div><label>${t('fPack')}</label><input type="date" name="pack" value="${today}"></div></div>
+    <div class="grid2"><div><label>${t('fBest')}</label><input type="date" name="best"></div><div><label>${t('fCount')}</label><input type="number" name="count" min="1" max="60" value="12"></div></div>
+    <label>${t('fCerts')}</label><input name="certs" maxlength="200" placeholder="VietGAP, OCOP 3 sao">
+    <label>${t('fSteps')}</label><textarea name="steps" placeholder="${today} | Thu hoạch | Vườn số 1"></textarea>
+    <p><button class="btn" type="submit">${t('create')}</button></p>
+  </form>
+  <p><a href="#/">${t('home')}</a></p>`;
+  document.getElementById('f').onsubmit = async e => {
+    e.preventDefault();
+    const f = Object.fromEntries(new FormData(e.target));
+    if (!f.product.trim()) return alert(t('need'));
+    const n = Math.min(60, Math.max(1, parseInt(f.count, 10) || 1));
+    const all = batches(), mine = store.get('tx_batches', []);
+    const id = 'LX-' + today.slice(2, 7).replace('-', '') + '-' + String(all.length + 1).padStart(2, '0');
+    const codes = new Set(); while (codes.size < n) codes.add(rndCode());
+    const b = {
+      id, icon: '📦', product: f.product.trim(), spec: f.spec.trim(), farm: 'Nông trại Lá Xanh (mẫu)',
+      region: f.region.trim(), puc: f.puc.trim(), harvest: f.harvest, pack: f.pack, best: f.best,
+      certs: f.certs.split(',').map(x => x.trim()).filter(Boolean),
+      steps: f.steps.split('\n').map(l => l.split('|').map(x => x.trim())).filter(p => p[0]).map(p => ({ d: p[0], t: p[1] || '', w: p[2] || '' })),
+      codes: [...codes]
+    };
+    b.anchor = await sha256(b);
+    mine.push(b); store.set('tx_batches', mine);
+    location.hash = '#/lo/' + encodeURIComponent(id);
+  };
+}
+
+function viewBatch(id) {
+  const b = batches().find(x => x.id === id);
+  if (!b) return viewAdmin();
+  const s = scans();
+  app.innerHTML = `
+  <div class="card noprint"><p><a href="#/quan-ly">${t('back')}</a></p><h1>${t('labelsT', { b: esc(b.id) })}</h1><p class="muted">${b.icon || '📦'} ${esc(L(b.product))} · ${b.codes.length} ${t('colCodes').toLowerCase()}</p><button class="btn" onclick="print()">${t('print')}</button></div>
+  <div class="card"><div class="labels">${b.codes.map(c => `<div class="lbl"><div class="small">${esc(L(b.product))}</div><div class="q" data-qr="${c}"></div><div class="c">${c}</div><a class="noprint" href="#/sp/${c}">${t('tryScan')}</a></div>`).join('')}</div></div>
+  <div class="card noprint"><h2>${t('scanStat')}</h2><div class="tbl"><table><tbody>${b.codes.map(c => { const n = (s[c] || []).length; return `<tr><td style="font-family:ui-monospace,monospace">${c}</td><td>${n ? t('times', { n }) : t('never')}</td><td>${n > 1 ? `<span style="color:var(--warn);font-weight:700">⚠️ ${t('sus')}</span>` : ''}</td></tr>`; }).join('')}</tbody></table></div></div>`;
+  app.querySelectorAll('[data-qr]').forEach(el => qr(el, base() + '#/sp/' + el.dataset.qr, 110));
+}
+
+// ===== Điều hướng =====
+let lastHash = null;
+function route() {
+  const h = location.hash.replace(/^#\/?/, '');
+  const [p, a] = h.split('/');
+  document.getElementById('demoNote').textContent = t('demo');
+  document.getElementById('foot').innerHTML = t('foot');
+  document.documentElement.lang = lang;
+  document.querySelectorAll('#langBox button').forEach(b => b.classList.toggle('on', b.dataset.l === lang));
+  const fresh = location.hash !== lastHash; lastHash = location.hash;
+  if (p === 'sp' && a) { if (fresh) tampered = false; viewScan(decodeURIComponent(a), fresh); }
+  else if (p === 'quan-ly') viewAdmin();
+  else if (p === 'lo' && a) viewBatch(decodeURIComponent(a));
+  else viewHome();
+  if (fresh) window.scrollTo(0, 0);
+}
+document.getElementById('langBox').onclick = e => { const l = e.target.dataset.l; if (l) { lang = l; store.set('tx_lang', l); route(); } };
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>
